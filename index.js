@@ -556,7 +556,7 @@ class Gallery {
         this.btn.style.left = '50%';
         this.btn.style.bottom = '99999px';
 
-        window.addEventListener('resize', ()=>{
+        this.target.addEventListener('resize', ()=>{
           let times = this.times;
           this.times = 0;
           while (this.target.firstChild) {
@@ -658,6 +658,7 @@ class Gallery {
           let images = Array.from(this.target.querySelectorAll('img'));
           images.forEach(function(elem) {
             elem.style.left = parseInt(elem.style.left) - shift + 'px';
+            elem.style.top = parseInt(elem.style.top) - shift + 'px';
           });
         };
 
@@ -713,6 +714,7 @@ class Gallery {
                     loading = true;
                     this.target.append(this.gif);
                     this.gif.style.bottom = '10px';
+                    this.gif.style.left = '50%';
                     let gifHeight = parseInt(getComputedStyle(this.gif).height);
                     this.target.style.height = Math.max(...this.columnHeights) + gifHeight + this.options.sidePadding + 20 + 'px';
 
