@@ -556,7 +556,11 @@ class Gallery {
         this.btn.style.left = '50%';
         this.btn.style.bottom = '99999px';
 
-        this.target.addEventListener('resize', ()=>{
+        window.addEventListener('resize', ()=>{
+          if (this.targetWidth == parseInt(getComputedStyle(this.target).width)) {
+            return;
+          };
+          this.targetWidth = parseInt(getComputedStyle(this.target).width);
           let times = this.times;
           this.times = 0;
           while (this.target.firstChild) {
