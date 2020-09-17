@@ -721,12 +721,12 @@ class Gallery {
     }
 
     setInfiniteLoad() {
-        let windowHeight = window.innerHeight;
+        // let windowHeight = window.innerHeight;
         let loading = false;
         
         if (!this.infiniteHandler) {
             this.infiniteHandler = async function(e) {
-                if ((windowHeight + 1 >= this.imagesBlock.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
+                if ((window.innerHeight + 1 >= this.imagesBlock.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
                     loading = true;
                     this.imagesBlock.append(this.gif);
                     // this.gif.style.bottom = '10px';
