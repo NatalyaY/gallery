@@ -726,7 +726,7 @@ class Gallery {
         
         if (!this.infiniteHandler) {
             this.infiniteHandler = async function(e) {
-                if ((windowHeight + 1 >= this.target.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
+                if ((windowHeight + 1 >= this.imagesBlock.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
                     loading = true;
                     this.imagesBlock.append(this.gif);
                     // this.gif.style.bottom = '10px';
