@@ -733,7 +733,7 @@ class Gallery {
                     this.gif.style.left = '50%';
                     this.gif.style.transform = 'translateX(-50%)';
                     let gifHeight = parseInt(getComputedStyle(this.gif).height);
-                    this.imagesBlock.style.height = Math.max(...this.columnHeights) + gifHeight + this.options.sidePadding + 20 + 'px';
+                    this.imagesBlock.style.height = Math.max(...this.columnHeights) + gifHeight + 30 + 'px';
                     let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
                     this.gif.style.bottom = `${bottomSpace}px`;
                     this.gif.style.transform = 'translate(-50%, 50%)'
@@ -757,7 +757,7 @@ class Gallery {
         this.imagesBlock.append(this.btn);
         //this.btn.style.transform = 'translateX(-50%)';
         let btnHeight = parseInt(getComputedStyle(this.btn).height);
-        this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + this.options.sidePadding + 20 + 'px';
+        this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
         let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
         this.btn.style.bottom = `${bottomSpace}px`;
         this.btn.style.transform = 'translate(-50%, 50%)'
