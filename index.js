@@ -520,6 +520,10 @@ class Gallery {
     }
 
     getSwitch() {
+
+        this.filersBlock = document.createElement('div');
+        this.filersBlock.classList.add('gallery__filters');
+
         let switchContainer = document.createElement('div');
         switchContainer.style.display = 'block';
         switchContainer.style.width = '100%';
@@ -533,13 +537,19 @@ class Gallery {
         switchbox.appendChild(checkbox);
         switchbox.appendChild(slider);
         switchContainer.appendChild(switchbox);
-        this.target.before(switchContainer);
+        this.filersBlock.append(switchContainer);
+        this.target.append(this.filersBlock);
 
         function checkboxHandler(e) {
             this.setInfinite(e.target.checked);
         };
 
         checkbox.addEventListener('change', checkboxHandler.bind(this));
+
+        this.imagesBlock = document.createElement('div');
+        this.imagesBlock.classList.add('gallery__imagesBlock');
+        this.imagesBlock.style.position = 'relative';
+        this.target.append(this.imagesBlock);
 
         this.gif = new Image();
         this.gif.src = 'loader.gif';
@@ -550,7 +560,7 @@ class Gallery {
         this.gif.style.left = '50%';
 
         this.btn = document.createElement('button');
-        this.btn.id = 'more';
+        this.btn.classList.add('filters__moreBtn');
         this.btn.innerText = 'More!';
         this.btn.style.position = 'absolute';
         this.btn.style.left = '50%';
@@ -565,8 +575,8 @@ class Gallery {
           this.windowWeight = window.innerWidth;
           let times = this.times;
           this.times = 0;
-          while (this.target.firstChild) {
-            this.target.removeChild(this.target.firstChild);
+          while (this.imagesBlock.firstChild) {
+            this.imagesBlock.removeChild(this.imagesBlock.firstChild);
           };
 
           this.getGrid();
@@ -594,7 +604,7 @@ class Gallery {
                     break;
                 };
 
-                let prevImg = this.target.querySelectorAll('img')[this.target.querySelectorAll('img').length - this.count];
+                let prevImg = this.imagesBlock.querySelectorAll('img')[this.imagesBlock.querySelectorAll('img').length - this.count];
 
                 this.columnHeights = [];
                 let top, left, colNum;
@@ -643,7 +653,7 @@ class Gallery {
                 img.dataset.column = colNum;
                 img.dataset.id = row + column;
                 img.style.opacity = "0%";
-                this.target.appendChild(img);
+                this.imagesBlock.appendChild(img);
                 let timer = setTimeout(() => {
                         img.style.opacity = "100%";
                     }, 0);
@@ -653,7 +663,7 @@ class Gallery {
             };
         };
 
-        this.target.style.height = Math.max(...this.columnHeights) + this.options.sidePadding + 'px'; // set the container's height by height of max column + padding 10px
+        this.imagesBlock.style.height = Math.max(...this.columnHeights) + this.options.sidePadding + 'px'; // set the container's height by height of max column + padding 10px
             
         this.times++;
 
@@ -661,7 +671,7 @@ class Gallery {
           let sidePadding = this.options.sidePadding;
           this.getGrid();
           let shift = sidePadding - this.options.sidePadding;
-          let images = Array.from(this.target.querySelectorAll('img'));
+          let images = Array.from(this.imagesBlock.querySelectorAll('img'));
           images.forEach(function(elem) {
             elem.style.left = parseInt(elem.style.left) - shift + 'px';
             elem.style.top = parseInt(elem.style.top) - shift + 'px';
@@ -669,9 +679,9 @@ class Gallery {
         };
 
         if (((this.images.length - 1) == this.lastImage)) {
-            if (document.getElementById('more')) {
-                document.getElementById('more').removeEventListener('click', this.moreBtnHandler);
-                document.getElementById('more').parentNode.removeChild(document.getElementById('more'));
+            if (this.imagesBlock.getElementsByClassName('filters__moreBtn')[0]) {
+                this.imagesBlock.getElementsByClassName('filters__moreBtn')[0].removeEventListener('click', this.moreBtnHandler);
+                this.imagesBlock.getElementsByClassName('filters__moreBtn')[0].parentNode.removeChild(this.imagesBlock.getElementsByClassName('filters__moreBtn')[0]);
             } else {
                 document.removeEventListener('scroll', this.infiniteHandler);
             };
@@ -698,9 +708,9 @@ class Gallery {
         this.options.infiniteLoad = infiniteStatus;
 
         if (this.options.infiniteLoad) {
-            if (document.getElementById('more')) {
-                document.getElementById('more').removeEventListener('click', this.moreBtnHandler);
-                document.getElementById('more').parentNode.removeChild(document.getElementById('more'));
+            if (this.imagesBlock.getElementsByClassName('filters__moreBtn')[0]) {
+                this.imagesBlock.getElementsByClassName('filters__moreBtn')[0].removeEventListener('click', this.moreBtnHandler);
+                this.imagesBlock.getElementsByClassName('filters__moreBtn')[0].parentNode.removeChild(this.imagesBlock.getElementsByClassName('filters__moreBtn')[0]);
             };
             this.setInfiniteLoad();
 
@@ -711,18 +721,22 @@ class Gallery {
     }
 
     setInfiniteLoad() {
-        let windowHeight = document.documentElement.clientHeight;
+        let windowHeight = window.innerHeight;
         let loading = false;
         
         if (!this.infiniteHandler) {
             this.infiniteHandler = async function(e) {
-                if ((windowHeight + 1 >= this.target.lastChild.getBoundingClientRect().y) && (loading == false)) {
+                if ((windowHeight + 1 >= this.target.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
                     loading = true;
-                    this.target.append(this.gif);
-                    this.gif.style.bottom = '10px';
+                    this.imagesBlock.append(this.gif);
+                    // this.gif.style.bottom = '10px';
                     this.gif.style.left = '50%';
+                    this.gif.style.transform = 'translateX(-50%)';
                     let gifHeight = parseInt(getComputedStyle(this.gif).height);
-                    this.target.style.height = Math.max(...this.columnHeights) + gifHeight + this.options.sidePadding + 20 + 'px';
+                    this.imagesBlock.style.height = Math.max(...this.columnHeights) + gifHeight + this.options.sidePadding + 20 + 'px';
+                    let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
+                    this.gif.style.bottom = `${bottomSpace}px`;
+                    this.gif.style.transform = 'translate(-50%, 50%)'
 
                     let timer = setTimeout(() => {
                      this.render(false)
@@ -740,17 +754,20 @@ class Gallery {
     }
 
     setMoreBtn() {
-        this.target.append(this.btn);
-        this.btn.style.bottom = '10px';
+        this.imagesBlock.append(this.btn);
+        //this.btn.style.transform = 'translateX(-50%)';
         let btnHeight = parseInt(getComputedStyle(this.btn).height);
-        this.target.style.height = Math.max(...this.columnHeights) + btnHeight + this.options.sidePadding + 20 + 'px';
+        this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + this.options.sidePadding + 20 + 'px';
+        let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
+        this.btn.style.bottom = `${bottomSpace}px`;
+        this.btn.style.transform = 'translate(-50%, 50%)'
 
         if (!this.moreBtnHandler) {
             this.moreBtnHandler = function(e) {
                 e.preventDefault();
                 this.render(false).then(()=>{
                   if (((this.images.length - 1) != this.lastImage)) {
-                    this.target.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
+                    this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
                 };
                 });
                 
@@ -763,4 +780,4 @@ class Gallery {
 
 };
 
-let gallery = new Gallery(document.getElementById(1), test, { qty: 10, infiniteLoad: false });
+let gallery = new Gallery(document.getElementById('gallery'), test, { qty: 10, infiniteLoad: false });

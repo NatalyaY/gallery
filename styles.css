@@ -1,5 +1,5 @@
 img {
-  transition: .4s;
+  transition: opacity .4s;
 }
 
 .switch {
