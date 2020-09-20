@@ -95,7 +95,7 @@ input:checked + .slider:before {
 .alinment__span, .alinment__span::before, .alinment__span::after {
 display: block;
   position: absolute;
-  width: 70%;
+  /*width: 70%;*/
   height: 1px;
   background-color: black;
 }
@@ -106,23 +106,26 @@ display: block;
 }
 
 .alinment__span::before {
-   content: '';
+  content: '';
   top: -8px;
+  width: 100%;
 }
 
 .alinment__span::after {
    content: '';
   top: 8px;
+  width: 100%;
 }
 
-.alinment__span-false::before, .alinment__span-false::after {
-  width: 50%;
+.alinment__span-0::before, .alinment__span-0::after {
+  width: 70%;
 }
 
 .alinment__span {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 70%;
 }
 
 .alinment__radio:checked + .alinment__btn {

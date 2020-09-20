@@ -508,7 +508,7 @@ class Gallery {
     }
 
     getGrid() {
-        this.targetWidth = parseInt(getComputedStyle(this.target).width);
+        this.targetWidth = parseFloat(getComputedStyle(this.target).width);
         this.count = Math.floor(this.targetWidth / this.imageWidth);
         if ((this.count * this.imageWidth + (this.count - 1) * this.options.minPadding) > this.targetWidth) this.count = this.count - 1;
         if (this.options.maxPadding) {
@@ -578,7 +578,7 @@ class Gallery {
         this.filersBlock.append(qtySelectorContainer);
 
         function qtyHandler(e) {
-            this.setQty(parseInt(e.target.value));
+            this.setQty(parseFloat(e.target.value));
         };
 
         qtySelectorContainer.addEventListener('change', qtyHandler.bind(this));
@@ -617,7 +617,7 @@ class Gallery {
 
 
         function alinmentHandler(e) {
-            this.setAlinment(parseInt(e.target.value));
+            this.setAlinment(parseFloat(e.target.value));
         };
 
         alinmentSelectorContainer.addEventListener('change', alinmentHandler.bind(this));
@@ -673,8 +673,8 @@ class Gallery {
             for(let i = 1; i < times; i++){
               await this.render(false);
               if ((i-times == -1)&&(!this.options.infiniteLoad)) {
-                let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseInt(el.style.height)+parseInt(el.style.top)));
-                this.imagesBlock.style.height = (maxHeight + parseInt(getComputedStyle(this.btn).height) + 30 + 'px');
+                let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseFloat(el.style.height)+parseFloat(el.style.top)));
+                this.imagesBlock.style.height = (maxHeight + parseFloat(getComputedStyle(this.btn).height) + 30 + 'px');
               };
             };
           });
@@ -707,8 +707,8 @@ class Gallery {
                     for (let n = 0; n < this.count; n++) { // save heights of all columns to put the image in column with min height
                         let column = document.querySelectorAll(`img[data-column="${n+1}"]`);
                         let lastImg = column[column.length - 1];
-                        let lastImgTop = parseInt(getComputedStyle(lastImg).top);
-                        let lastImgHeight = parseInt(getComputedStyle(lastImg).height);
+                        let lastImgTop = parseFloat(getComputedStyle(lastImg).top);
+                        let lastImgHeight = parseFloat(getComputedStyle(lastImg).height);
                         this.columnHeights.push(lastImgTop + lastImgHeight);
                     };
 
@@ -717,11 +717,11 @@ class Gallery {
                     let lastImgMinColumn = minColumn[minColumn.length - 1];
                     if (prevImg != lastImgMinColumn) prevImg = lastImgMinColumn;
 
-                    let prevTop = parseInt(getComputedStyle(prevImg).top);
-                    let prevHeight = parseInt(getComputedStyle(prevImg).height);
+                    let prevTop = parseFloat(getComputedStyle(prevImg).top);
+                    let prevHeight = parseFloat(getComputedStyle(prevImg).height);
 
                     top = prevTop + prevHeight + 10; // abs position by top + padding 10px
-                    left = parseInt(getComputedStyle(prevImg).left);
+                    left = parseFloat(getComputedStyle(prevImg).left);
                     colNum = prevImg.dataset.column;
 
                 } else { // for first row
@@ -739,7 +739,7 @@ class Gallery {
                 let img = document.createElement('img');
                 img.classList.add('gallery__img')
                 img.src = this.images[row + column][0];
-                let height = parseInt(this.images[row + column][2]);
+                let height = parseFloat(this.images[row + column][2]);
                 img.style.position = 'absolute';
                 img.style.left = left + 'px';
                 img.style.height = height + 'px';
@@ -761,14 +761,14 @@ class Gallery {
             
         this.times++;
 
-        if (parseInt(getComputedStyle(this.target).width) != this.targetWidth) {
+        if (parseFloat(getComputedStyle(this.target).width) != this.targetWidth) {
           let sidePadding = this.options.sidePadding;
           this.getGrid();
           let shift = sidePadding - this.options.sidePadding;
           let images = Array.from(this.imagesBlock.querySelectorAll('img'));
           images.forEach(function(elem) {
-            elem.style.left = parseInt(elem.style.left) - shift + 'px';
-            elem.style.top = parseInt(elem.style.top) - shift + 'px';
+            elem.style.left = parseFloat(elem.style.left) - shift + 'px';
+            elem.style.top = parseFloat(elem.style.top) - shift + 'px';
           });
         };
 
@@ -841,9 +841,9 @@ class Gallery {
         });
       };
 
-      let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseInt(el.style.height)+parseInt(el.style.top)));
+      let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseFloat(el.style.height)+parseFloat(el.style.top)));
       this.imagesBlock.style.height = (this.options.infiniteLoad) ? (maxHeight + this.options.sidePadding + 'px') 
-      : (maxHeight + parseInt(getComputedStyle(this.btn).height) + 30 + 'px');
+      : (maxHeight + parseFloat(getComputedStyle(this.btn).height) + 30 + 'px');
       this.options.qty = qty;
       if (this.options.infiniteLoad) {
        this.infiniteHandler();
@@ -852,6 +852,8 @@ class Gallery {
 
     setAlinment(maxPadding) {
       let count = this.count;
+      let oldPadding = this.options.padding;
+      let oldSidePadding = this.options.sidePadding;
       this.options.maxPadding = maxPadding;
       this.getGrid();
       if (this.count != count) {
@@ -867,29 +869,46 @@ class Gallery {
             };
           });
       } else {
-        this.imagesBlock.querySelectorAll('img').forEach(function(elem) {
-          let column = elem.dataset.column - 1;
-          let left, top;
-          let prevImg = this.imagesBlock.querySelector(`img[data-id='${elem.dataset.id - this.count}']`);
-          if (prevImg) {
-            let prevTop = parseInt(getComputedStyle(prevImg).top);
-                    let prevHeight = parseInt(getComputedStyle(prevImg).height);
 
-                    top = prevTop + prevHeight + 10; // abs position by top + padding 10px
-                    left = parseInt(getComputedStyle(prevImg).left);
-           
+         
+
+        this.imagesBlock.querySelectorAll('img').forEach(function(elem) {
+
+          let left = parseFloat(elem.style.left);
+          let top = parseFloat(elem.style.top);
+
+          elem.style.top = top + this.options.sidePadding - oldSidePadding;
+
+          if (elem.dataset.column - 1 == 0) {
+            elem.style.left = left + this.options.sidePadding - oldSidePadding;
           } else {
-           if (column == 0) {
-               left = this.options.maxPadding ? this.options.padding : this.options.sidePadding;
-            } else {
-                left = this.options.maxPadding ? column * this.imageWidth + this.options.padding * (column + 1) :
-                column * this.imageWidth + this.options.padding * column + this.options.sidePadding;
-            };
-            top = this.options.sidePadding;
+            elem.style.left = left + this.options.sidePadding - oldSidePadding + (this.options.padding - oldPadding)*(elem.dataset.column-1);
           };
 
-            elem.style.top = top + 'px';
-            elem.style.left = left + 'px';
+
+
+          // let column = elem.dataset.column - 1;
+          // let left, top;
+          // let prevImg = this.imagesBlock.querySelector(`img[data-id='${elem.dataset.id - this.count}']`);
+          // if (prevImg) {
+          //   let prevTop = parseFloat(getComputedStyle(prevImg).top);
+          //           let prevHeight = parseFloat(getComputedStyle(prevImg).height);
+
+          //           top = prevTop + prevHeight + 10; // abs position by top + padding 10px
+          //           left = parseFloat(getComputedStyle(prevImg).left);
+           
+          // } else {
+          //  if (column == 0) {
+          //      left = this.options.maxPadding ? this.options.padding : this.options.sidePadding;
+          //   } else {
+          //       left = this.options.maxPadding ? column * this.imageWidth + this.options.padding * (column + 1) :
+          //       column * this.imageWidth + this.options.padding * column + this.options.sidePadding;
+          //   };
+          //   top = this.options.sidePadding;
+          // };
+
+          //   elem.style.top = top + 'px';
+          //   elem.style.left = left + 'px';
 
         }.bind(this));
     };
@@ -905,8 +924,8 @@ class Gallery {
                     this.imagesBlock.append(this.gif);
                     this.gif.style.left = '50%';
                     this.gif.style.transform = 'translateX(-50%)';
-                    let gifHeight = parseInt(getComputedStyle(this.gif).height);
-                    this.imagesBlock.style.height = parseInt(this.imagesBlock.style.height) - this.options.sidePadding + gifHeight + 30 + 'px';
+                    let gifHeight = parseFloat(getComputedStyle(this.gif).height);
+                    this.imagesBlock.style.height = parseFloat(this.imagesBlock.style.height) - this.options.sidePadding + gifHeight + 30 + 'px';
                     let bottomSpace = (gifHeight + 30)/2;
                     this.gif.style.bottom = `${bottomSpace}px`;
                     this.gif.style.transform = 'translate(-50%, 50%)'
@@ -928,7 +947,7 @@ class Gallery {
 
     setMoreBtn() {
         this.imagesBlock.append(this.btn);
-        let btnHeight = parseInt(getComputedStyle(this.btn).height);
+        let btnHeight = parseFloat(getComputedStyle(this.btn).height);
         this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
         let bottomSpace = (btnHeight + 30)/2;
         this.btn.style.bottom = `${bottomSpace}px`;
