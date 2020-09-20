@@ -6,7 +6,7 @@ img {
   position: relative;
   display: inline-block;
   width: 60px;
-  height: 34px;
+  height: 100%;
 }
 
 .switch input {display:none;}
@@ -49,11 +49,125 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
+.qty__label {
+  width: 36px;
+  display: flex;
+  cursor: pointer;
 }
 
-.slider.round:before {
-  border-radius: 50%;
+.qty__span {
+  border: 1px solid darkgray;
+  background-color: #ccc;
+  padding: 2px 3px;
+  transition: .4s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 1px 0px 1px 0px white;
+}
+
+.qty__radio:checked + .qty__span {
+  background-color: #2196F3;
+  color: white;
+  box-shadow: inset 0px 0px 8px 1px rgba(0, 0, 0, 0.3), 0 0 1px 1px #ccc;
+}
+
+.gallery__filters {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+}
+
+.switchContainer {
+  display: flex;
+  height: 34px;
+}
+
+.switchText {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.alinment__span, .alinment__span::before, .alinment__span::after {
+display: block;
+  position: absolute;
+  width: 70%;
+  height: 1px;
+  background-color: black;
+}
+
+.alinment__label {
+  display: flex; 
+  cursor: pointer;
+}
+
+.alinment__span::before {
+   content: '';
+  top: -8px;
+}
+
+.alinment__span::after {
+   content: '';
+  top: 8px;
+}
+
+.alinment__span-false::before, .alinment__span-false::after {
+  width: 50%;
+}
+
+.alinment__span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alinment__radio:checked + .alinment__btn {
+  background-color: #2196F3;
+  box-shadow: inset 0px 0px 8px 1px rgba(0, 0, 0, 0.3), 0 0 1px 1px #ccc;
+}
+
+.alinment__radio:checked + .alinment__btn .alinment__span {
+  background-color: white;
+}
+
+.alinment__radio:checked + .alinment__btn .alinment__span::before {
+  background-color: white;
+}
+
+.alinment__radio:checked + .alinment__btn .alinment__span::after {
+  background-color: white;
+}
+
+.alinment__btn {
+  border: 1px solid darkgray;
+  background-color: #ccc;
+  box-shadow: inset 1px 0px 1px 0px white;
+  width: 32px;
+  display: flex; 
+  align-items: center;  
+  justify-content: center;
+  position: relative;
+  transition: .4s;
+}
+
+.switchContainer, .qtySelectorContainer, .alinmentSelectorContainer {
+  display: flex;
+  height: 34px;
+}
+
+@media (max-width: 750px) {
+  .switchContainer, .qtySelectorContainer {
+    margin-bottom: 15px;
+  }
+
+  .gallery__filters {
+    flex-direction: column;
+    align-items: center;
+  }
+
+
 }

@@ -502,7 +502,7 @@ class Gallery {
         this.columnHeights = [];
         this.times = 0;
         this.getGrid();
-        this.getSwitch();
+        this.getFilters();
         this.render(true).then(()=>{return this});
         
     }
@@ -513,20 +513,26 @@ class Gallery {
         if ((this.count * this.imageWidth + (this.count - 1) * this.options.minPadding) > this.targetWidth) this.count = this.count - 1;
         if (this.options.maxPadding) {
             this.options.padding = (this.targetWidth - this.count * this.imageWidth) / (this.count + 1);
+            this.options.sidePadding = this.options.padding;
         } else {
             this.options.sidePadding = (this.targetWidth - (this.count * this.imageWidth + (this.count - 1) * this.options.minPadding)) / 2;
             this.options.padding = this.options.minPadding
         };
     }
 
-    getSwitch() {
+    getFilters() {
 
         this.filersBlock = document.createElement('div');
         this.filersBlock.classList.add('gallery__filters');
 
         let switchContainer = document.createElement('div');
-        switchContainer.style.display = 'block';
-        switchContainer.style.width = '100%';
+        switchContainer.classList.add('switchContainer');
+
+        let switchText = document.createElement('span');
+        switchText.classList.add('switchText');
+        switchText.innerText = 'Infinite load';
+
+        // switchContainer.style.width = '100%';
         let switchbox = document.createElement('label');
         let checkbox = document.createElement('input');
         let slider = document.createElement('span');
@@ -536,9 +542,90 @@ class Gallery {
         checkbox.checked = this.options.infiniteLoad;
         switchbox.appendChild(checkbox);
         switchbox.appendChild(slider);
+        switchContainer.append(switchText);
         switchContainer.appendChild(switchbox);
         this.filersBlock.append(switchContainer);
+
+        let qtySelectorContainer = document.createElement('div');
+        qtySelectorContainer.classList.add('qtySelectorContainer');
+
+        let qtyArr = [10, 25, 50, 100];
+
+        qtyArr.forEach(function(elem) {
+          let label = document.createElement('label');
+          label.classList.add('qty__label');
+
+          let radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'qty';
+          radio.value = `${elem}`;
+          radio.style.display = 'none';
+          radio.classList.add('qty__radio');
+          if (this.options.qty == elem) {
+            radio.checked = true;
+          };
+
+          let span = document.createElement('span');
+          span.classList.add('qty__span');
+          span.innerText = `${elem}`;
+
+          label.append(radio);
+          label.append(span);
+          qtySelectorContainer.append(label);
+        }.bind(this));
+
+
+        this.filersBlock.append(qtySelectorContainer);
+
+        function qtyHandler(e) {
+            this.setQty(parseInt(e.target.value));
+        };
+
+        qtySelectorContainer.addEventListener('change', qtyHandler.bind(this));
+
+        let alinmentSelectorContainer = document.createElement('div');
+        alinmentSelectorContainer.classList.add('alinmentSelectorContainer');
+
+        [0, 1].forEach(function(elem) {
+          let label = document.createElement('label');
+          label.classList.add('alinment__label');
+
+          let radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'alinment';
+          radio.value = `${elem}`;
+          radio.style.display = 'none';
+          radio.classList.add('alinment__radio');
+
+          if (this.options.maxPadding == elem) {
+            radio.checked = true;
+          };
+
+          let btn = document.createElement('div');
+          btn.classList.add('alinment__btn');
+
+          let span = document.createElement('span');
+          span.classList.add('alinment__span', `alinment__span-${elem}`);
+
+          btn.append(span);
+
+          label.append(radio);
+          label.append(btn);
+          alinmentSelectorContainer.append(label);
+        }.bind(this));
+        this.filersBlock.append(alinmentSelectorContainer);
+
+
+        function alinmentHandler(e) {
+            this.setAlinment(parseInt(e.target.value));
+        };
+
+        alinmentSelectorContainer.addEventListener('change', alinmentHandler.bind(this));
+
+
+
         this.target.append(this.filersBlock);
+
 
         function checkboxHandler(e) {
             this.setInfinite(e.target.checked);
@@ -581,9 +668,14 @@ class Gallery {
 
           this.getGrid();
 
-          this.render(true).then(()=>{
+
+          this.render(true).then(async()=>{
             for(let i = 1; i < times; i++){
-              this.render(false);
+              await this.render(false);
+              if ((i-times == -1)&&(!this.options.infiniteLoad)) {
+                let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseInt(el.style.height)+parseInt(el.style.top)));
+                this.imagesBlock.style.height = (maxHeight + parseInt(getComputedStyle(this.btn).height) + 30 + 'px');
+              };
             };
           });
         });
@@ -591,7 +683,8 @@ class Gallery {
 
     render(isFirstTime) {
       return new Promise((resolve, reject) => {
-        this.firstImage = this.times * this.options.qty;
+        this.firstImage = isFirstTime ? this.times * this.options.qty : this.imagesBlock.querySelectorAll('.gallery__img').length;
+        // this.times * this.options.qty;
         this.lastImage = this.firstImage + this.options.qty - 1;
         if (!this.images[this.lastImage]) {
             this.lastImage = this.images.length - 1;
@@ -644,6 +737,7 @@ class Gallery {
                 };
 
                 let img = document.createElement('img');
+                img.classList.add('gallery__img')
                 img.src = this.images[row + column][0];
                 let height = parseInt(this.images[row + column][2]);
                 img.style.position = 'absolute';
@@ -687,7 +781,7 @@ class Gallery {
             };
         };
 
-        if (isFirstTime) {
+        if (isFirstTime && ((this.images.length - 1) != this.lastImage)) {
             if (this.options.infiniteLoad) {
                 this.setInfiniteLoad();
             } else {
@@ -704,7 +798,10 @@ class Gallery {
     }
 
     setInfinite(infiniteStatus) {
-        if ((this.images.length - 1) == this.lastImage) return;
+        if ((this.images.length - 1) == this.lastImage) {
+          this.options.infiniteLoad = infiniteStatus;
+          return;
+        };
         this.options.infiniteLoad = infiniteStatus;
 
         if (this.options.infiniteLoad) {
@@ -720,8 +817,85 @@ class Gallery {
         };
     }
 
+    setQty(qty) {
+      if ((this.images.length - 1) == this.lastImage) {
+        this.times = 0;
+        this.options.qty = qty;
+          while (this.imagesBlock.firstChild) {
+            this.imagesBlock.removeChild(this.imagesBlock.firstChild);
+          };
+        this.render(true);
+        return;
+      };
+      let diff = qty - this.options.qty;
+      if (diff < 0) {
+        diff = (this.options.qty*this.times > this.images.length) ? this.images.length - qty*this.times : -diff*this.times;
+        for (let i = 0; i < diff; i++) {
+          this.imagesBlock.removeChild(this.imagesBlock.querySelector('img:last-of-type'));
+        };
+      } else {
+        this.options.qty = diff*this.times;
+        this.render(false).then(()=>{
+          this.options.qty = qty;
+          this.times--;
+        });
+      };
+
+      let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseInt(el.style.height)+parseInt(el.style.top)));
+      this.imagesBlock.style.height = (this.options.infiniteLoad) ? (maxHeight + this.options.sidePadding + 'px') 
+      : (maxHeight + parseInt(getComputedStyle(this.btn).height) + 30 + 'px');
+      this.options.qty = qty;
+      if (this.options.infiniteLoad) {
+       this.infiniteHandler();
+      };
+    }
+
+    setAlinment(maxPadding) {
+      let count = this.count;
+      this.options.maxPadding = maxPadding;
+      this.getGrid();
+      if (this.count != count) {
+        let times = this.times;
+          this.times = 0;
+          while (this.imagesBlock.firstChild) {
+            this.imagesBlock.removeChild(this.imagesBlock.firstChild);
+          };
+
+          this.render(true).then(()=>{
+            for(let i = 1; i < times; i++){
+              this.render(false);
+            };
+          });
+      } else {
+        this.imagesBlock.querySelectorAll('img').forEach(function(elem) {
+          let column = elem.dataset.column - 1;
+          let left, top;
+          let prevImg = this.imagesBlock.querySelector(`img[data-id='${elem.dataset.id - this.count}']`);
+          if (prevImg) {
+            let prevTop = parseInt(getComputedStyle(prevImg).top);
+                    let prevHeight = parseInt(getComputedStyle(prevImg).height);
+
+                    top = prevTop + prevHeight + 10; // abs position by top + padding 10px
+                    left = parseInt(getComputedStyle(prevImg).left);
+           
+          } else {
+           if (column == 0) {
+               left = this.options.maxPadding ? this.options.padding : this.options.sidePadding;
+            } else {
+                left = this.options.maxPadding ? column * this.imageWidth + this.options.padding * (column + 1) :
+                column * this.imageWidth + this.options.padding * column + this.options.sidePadding;
+            };
+            top = this.options.sidePadding;
+          };
+
+            elem.style.top = top + 'px';
+            elem.style.left = left + 'px';
+
+        }.bind(this));
+    };
+  }
+
     setInfiniteLoad() {
-        // let windowHeight = window.innerHeight;
         let loading = false;
         
         if (!this.infiniteHandler) {
@@ -729,12 +903,11 @@ class Gallery {
                 if ((window.innerHeight + 1 >= this.imagesBlock.lastChild.getBoundingClientRect().bottom) && (loading == false)) {
                     loading = true;
                     this.imagesBlock.append(this.gif);
-                    // this.gif.style.bottom = '10px';
                     this.gif.style.left = '50%';
                     this.gif.style.transform = 'translateX(-50%)';
                     let gifHeight = parseInt(getComputedStyle(this.gif).height);
-                    this.imagesBlock.style.height = Math.max(...this.columnHeights) + gifHeight + 30 + 'px';
-                    let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
+                    this.imagesBlock.style.height = parseInt(this.imagesBlock.style.height) - this.options.sidePadding + gifHeight + 30 + 'px';
+                    let bottomSpace = (gifHeight + 30)/2;
                     this.gif.style.bottom = `${bottomSpace}px`;
                     this.gif.style.transform = 'translate(-50%, 50%)'
 
@@ -755,10 +928,9 @@ class Gallery {
 
     setMoreBtn() {
         this.imagesBlock.append(this.btn);
-        //this.btn.style.transform = 'translateX(-50%)';
         let btnHeight = parseInt(getComputedStyle(this.btn).height);
         this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
-        let bottomSpace = (parseInt(this.imagesBlock.style.height) - Math.max(...this.columnHeights))/2;
+        let bottomSpace = (btnHeight + 30)/2;
         this.btn.style.bottom = `${bottomSpace}px`;
         this.btn.style.transform = 'translate(-50%, 50%)'
 
@@ -780,4 +952,4 @@ class Gallery {
 
 };
 
-let gallery = new Gallery(document.getElementById('gallery'), test, { qty: 10, infiniteLoad: false });
+let gallery = new Gallery(document.getElementById('gallery'), test, { qty: 25, infiniteLoad: true, maxPadding: true });
