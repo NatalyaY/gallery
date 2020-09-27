@@ -870,8 +870,6 @@ class Gallery {
           });
       } else {
 
-         
-
         this.imagesBlock.querySelectorAll('img').forEach(function(elem) {
 
           let left = parseFloat(elem.style.left);
@@ -885,33 +883,12 @@ class Gallery {
             elem.style.left = left + this.options.sidePadding - oldSidePadding + (this.options.padding - oldPadding)*(elem.dataset.column-1);
           };
 
-
-
-          // let column = elem.dataset.column - 1;
-          // let left, top;
-          // let prevImg = this.imagesBlock.querySelector(`img[data-id='${elem.dataset.id - this.count}']`);
-          // if (prevImg) {
-          //   let prevTop = parseFloat(getComputedStyle(prevImg).top);
-          //           let prevHeight = parseFloat(getComputedStyle(prevImg).height);
-
-          //           top = prevTop + prevHeight + 10; // abs position by top + padding 10px
-          //           left = parseFloat(getComputedStyle(prevImg).left);
-           
-          // } else {
-          //  if (column == 0) {
-          //      left = this.options.maxPadding ? this.options.padding : this.options.sidePadding;
-          //   } else {
-          //       left = this.options.maxPadding ? column * this.imageWidth + this.options.padding * (column + 1) :
-          //       column * this.imageWidth + this.options.padding * column + this.options.sidePadding;
-          //   };
-          //   top = this.options.sidePadding;
-          // };
-
-          //   elem.style.top = top + 'px';
-          //   elem.style.left = left + 'px';
-
         }.bind(this));
     };
+
+    let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseFloat(el.style.height)+parseFloat(el.style.top)));
+      this.imagesBlock.style.height = (this.options.infiniteLoad) ? (maxHeight + this.options.sidePadding + 'px') 
+      : (maxHeight + parseFloat(getComputedStyle(this.btn).height) + 30 + 'px');
   }
 
     setInfiniteLoad() {
@@ -948,7 +925,9 @@ class Gallery {
     setMoreBtn() {
         this.imagesBlock.append(this.btn);
         let btnHeight = parseFloat(getComputedStyle(this.btn).height);
-        this.imagesBlock.style.height = Math.max(...this.columnHeights) + btnHeight + 30 + 'px';
+        let maxHeight = Math.max(...Array.from(this.imagesBlock.querySelectorAll('img')).map((el)=>parseFloat(el.style.height)+parseFloat(el.style.top)));
+      this.imagesBlock.style.height = (this.options.infiniteLoad) ? (maxHeight + this.options.sidePadding + 'px') 
+      : (maxHeight + parseFloat(getComputedStyle(this.btn).height) + 30 + 'px');
         let bottomSpace = (btnHeight + 30)/2;
         this.btn.style.bottom = `${bottomSpace}px`;
         this.btn.style.transform = 'translate(-50%, 50%)'
